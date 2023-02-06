@@ -2,7 +2,7 @@
 
 Alright so you have a list of geocoordinates (for example maybe street sensors) and you want to create an adjacency matrix to feed into your PyTorch or Tensorflow GCN model such as the A3T-GCN. This tutorial uses OSMnx to measure the distance of optimal paths between each of the geocoordinates for each geocoordinate. The distances are saved to a CSV file as an adjacency matrix. The distance matrix in this tutorial is very basic, but you could go even further by capturing more spatial information such as capturing the shape of the paths between the geocoordinates. The adjacency matrix is used to structure the unstructured graph data.
 
-
+![image](https://user-images.githubusercontent.com/53316058/217098922-fb6fb157-20dd-443f-8faa-217122097361.png)
 
 A brief file structure overview of the repository is provided. The adjacency_matrix.py is in the root directory. The data folder houses a list of geocoordinates in a csv file. For this example six bicycle sensors where selected from the City of Munich's opendata portal. For a GCN of course it is better for a graph to be larger than 50 sensors. The graph distances are saved as a matrix in the output folder.
 
