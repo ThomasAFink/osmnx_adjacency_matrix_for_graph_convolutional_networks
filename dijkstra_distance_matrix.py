@@ -1,5 +1,5 @@
 '''
-The idea was spakerd from Wei-Meng Lee on towardsdatascience
+The idea was sparked from Wei-Meng Lee on towardsdatascience
 https://towardsdatascience.com/visualization-in-python-finding-routes-between-points-2d97d4881996
 
 For graph neural networks fastest Dijkstra routes can be found using OpenStreetMap API. 
