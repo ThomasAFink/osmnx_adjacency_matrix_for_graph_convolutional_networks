@@ -1,7 +1,9 @@
 '''
-Originally posted by Wei-Meng Lee on towardsdatascience
-For graph neural networks fastest Dijkstra routes can be found using OpenStreetMap API. 
+The idea was spakerd from Wei-Meng Lee on towardsdatascience
 https://towardsdatascience.com/visualization-in-python-finding-routes-between-points-2d97d4881996
+
+For graph neural networks fastest Dijkstra routes can be found using OpenStreetMap API. 
+
 Multi processing on a CPU or using a GPU is advised as the the process is very resource intensive.
 place = 'Munich, Bavaria, Germany'
 
