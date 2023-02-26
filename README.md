@@ -34,7 +34,6 @@ Before jumping into the code the following requirements and packages are needed 
     pip3 install shapely==1.8.0
     pip3 install scipy
     pip3 install networkx
-    pip3 install plotly
     pip3 install pandas
     
 First the packages that were just installed are imported into our file adjacency_matrix.py
