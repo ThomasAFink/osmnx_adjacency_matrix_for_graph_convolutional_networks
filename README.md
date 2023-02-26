@@ -30,7 +30,8 @@ The munich_bicycle_sensors.csv includes the following target geocoordinates.
 Before jumping into the code the following requirements and packages are needed to run the code:
 
     Python 3.10.6
-    pip3 install osmnx==0.16.1 
+    pip3 install osmnx==0.16.1
+    pip3 install shapely==1.8.0
     pip3 install scipy
     pip3 install networkx
     pip3 install plotly
