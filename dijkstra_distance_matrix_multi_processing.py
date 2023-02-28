@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
     # Create the networkx graph
     # 'drive', 'bike', 'walk'
-    graph = create_graph("Munich, Bavaria, Germany", "drive")
+    graph = create_graph("Munich, Bavaria, Germany", "bike")
 
     # Create a process for each row in the df dataframe
     processes = []
