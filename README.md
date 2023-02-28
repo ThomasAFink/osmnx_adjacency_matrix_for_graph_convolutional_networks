@@ -44,6 +44,24 @@ First the packages that were just installed are imported into our file adjacency
     import pandas as pd
     import osmnx as ox
     import networkx as nx
+    
+Then we setup the OSMNX cache configuration is an optional method to store maps from OSM. This is especially resourceful for storing larger maps as it requires fewer requests to the api. For plotting a handful of paths this really does not impact processing time significantly.
+
+    # Using the cache accelerates processing for a large map
+    ox.config(log_console=True, use_cache=True)
+
+Next we can set the location of our map to confine its perimeter.
+
+    place = 'Munich, Bavaria, Germany'
+
+The mode of transport is set to bike. Drive captures the road network used by automobiles. Bike capture the path network used by bicycles. Walk capture the walkway network used by pedestrians. Finding an optimal walkway is usually too resource intensive when processing due to the fact that their are many more nodes on the walking graph
+
+    # 'drive', 'bike', 'walk'
+    mode = 'bike'
+
+Finally the graph can be requested and downloaded from the OSMnx api. The graph perimeters are set in the parameters and passed to the api request. The graph mode and place are also passed along. ONLY DOWNLOAD THE GRAPH ONCE TO AVOID REQUEST LIMITS!!
+
+    graph = ox.graph_from_place(place, network_type = mode)    
 
 Next a function is created which saves our optimal path distance matrix as the CSV file in our output folder from the list of geocoordinates in our data folder. This function takes our dataframe as a parameter.
 
@@ -61,24 +79,6 @@ We need to iterate through all the detectors for each detector in our dataframe.
             for detector in islice(df.iterrows(), 0, len(list(df.DETEKTOR_ID))):
                 j=0;
                 for each_detector in df.iterrows():
-
-Inside the function a cache configuration is an optional method to store maps from OSM. This is especially resourceful for storing larger maps as it requires fewer requests to the api. For plotting a handful of paths this really does not impact processing time significantly.
-
-                    # Using the cache accelerates processing for a large map
-                    ox.config(log_console=True, use_cache=True)
-
-Next we can set the location of our map to confine its perimeter.
-
-                    place = 'Munich, Bavaria, Germany'
-
-The mode of transport is set to bike. Drive captures the road network used by automobiles. Bike capture the path network used by bicycles. Walk capture the walkway network used by pedestrians. Finding an optimal walkway is usually too resource intensive when processing due to the fact that their are many more nodes on the walking graph
-
-                    # 'drive', 'bike', 'walk'
-                    mode = 'bike'
-
-Finally the graph can be requested and downloaded from the OSMnx api. The graph perimeters are set in the parameters and passed to the api request. The graph mode and place are also passed along.
-
-                    graph = ox.graph_from_place(place, network_type = mode)
 
 Now that we have requested the graph from OSMnx api we can also request or path. We need the coordinates from the current sensor and the coordinates to the destination sensor. Remember we are inside a double for loop looping through sensor by sensor for each sensor.
 
