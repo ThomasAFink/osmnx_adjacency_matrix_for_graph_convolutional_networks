@@ -18,6 +18,20 @@ import osmnx as ox
 import networkx as nx
 
 
+# Using the cache accelerates processing for a large map
+ox.config(log_console=True, use_cache=True)
+
+# find shortest route based on the mode of travel
+
+#place = 'Los Angeles, California, United States'
+place = 'Munich, Bavaria, Germany'
+
+# 'drive', 'bike', 'walk'
+mode = 'bike'
+
+# request the graph from the inputs once!!!
+graph = ox.graph_from_place(place, network_type = mode)
+
 ##### Interface to OSMNX
 def generate_adjacency_matrix(df, df_row, row_index):
 
@@ -29,22 +43,7 @@ def generate_adjacency_matrix(df, df_row, row_index):
     for index, detector in islice(df_row.iterrows(), 0, len(list(df_row.DETEKTOR_ID))):
         j=0;
         for l, each_detector in df.iterrows():
-        
-            # Using the cache accelerates processing for a large map
-            ox.config(log_console=True, use_cache=True)
-
-            # find shortest route based on the mode of travel
-
-            #place = 'Los Angeles, California, United States'
-            place = 'Munich, Bavaria, Germany'
-
-            # 'drive', 'bike', 'walk'
-            mode = 'bike'
-
-            # request the graph from the inputs
-            graph = ox.graph_from_place(place, network_type = mode)
-
-
+            
             # coordinates from the current sensor
             start_latlng = (float(detector["LATITUDE"]), float(detector["LONGITUDE"]))
             # coordinates belonging to the destination sensor
@@ -94,7 +93,6 @@ def combine_csv_files():
 
     # Save the concatenated dataframe as a CSV file
     result.to_csv(OS_PATH + "/output/combined_adjacency_matrix.csv", index=False)
-
 
 if __name__ == '__main__':
 
