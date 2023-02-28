@@ -105,11 +105,24 @@ def combine_csv_files(df):
     result.to_csv(OS_PATH + "/munich_adjacency_matrix.csv", index=False)
 
 
-if __name__ == '__main__':
+def divide_dataframe(df, num_processes):
+    """
+    Divide a DataFrame into roughly equal chunks for parallel processing.
 
+    Args:
+        df (pd.DataFrame): DataFrame to divide.
+        num_processes (int): Number of processes to divide the DataFrame into.
+
+    Returns:
+        List of DataFrames, each representing a chunk of the original DataFrame.
+    """
+    chunk_size = int(np.ceil(len(df) / num_processes))
+    return [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+
+if __name__ == '__main__':
     # Data import path
     OS_PATH = os.path.dirname(os.path.realpath('__file__'))
-    SENSORS_CSV   = OS_PATH + '/munich_sensors.csv'
+    SENSORS_CSV = os.path.join(OS_PATH, 'augsburg_sensors.csv')
 
     # Data Import Path
     df = pd.read_csv(SENSORS_CSV)
@@ -117,16 +130,11 @@ if __name__ == '__main__':
     # Keep only relevant columns
     df = df.loc[:, ("detid","lat", "long")]
 
-    # Remove missing geocoordinates
-    df.dropna(subset=['lat'], how='all', inplace=True)
-    df.dropna(subset=['long'], how='all', inplace=True)
+    # Remove missing geocoordinates and sensor ids
+    df.dropna(subset=['lat', 'long', 'detid'], how='any', inplace=True)
 
-    # Remove missing sensor ids
-    df.dropna(subset=['detid'], how='all', inplace=True)
-
-    # Python process limit is 512 modify this based on your machine
-    num_processes = min(len(df), 500)
-    chunk_size = math.ceil(len(df) / num_processes)
+    num_processes = min(500, len(df))
+    df_chunks = divide_dataframe(df, num_processes)
 
     # Create the networkx graph
     # 'drive', 'bike', 'walk'
@@ -134,11 +142,11 @@ if __name__ == '__main__':
 
     # Create a process for each chunk of the df dataframe
     processes = []
-    for i, chunk in enumerate(np.array_split(df, num_processes)):
-        p = mp.Process(target=generate_adjacency_matrix, args=(df, chunk, i+1, graph))
+    for i, df_chunk in enumerate(df_chunks):
+        p = mp.Process(target=generate_adjacency_matrix, args=(df, df_chunk, i+1, graph))
         p.start()
         processes.append(p)
-        
+
     for p in processes:
         p.join()
 
