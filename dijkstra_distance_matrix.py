@@ -95,6 +95,6 @@ df.dropna(subset=['DETEKTOR_ID'], how='all', inplace=True)
 
 # Create the networkx graph ONLY CREATE THIS ONCE TO REDUCE OSM REQUESTS!!!
 # 'drive', 'bike', 'walk'
-graph = create_graph("Munich, Bavaria, Germany", "drive")
+graph = create_graph("Munich, Bavaria, Germany", "bike")
 
 generate_adjacency_matrix(df)
