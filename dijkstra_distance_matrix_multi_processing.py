@@ -15,6 +15,7 @@ from itertools import islice
 import pandas as pd
 import osmnx as ox
 import networkx as nx
+import math
 
 # Using the cache accelerates processing for a large map
 ox.config(log_console=True, use_cache=True, timeout=1000)
@@ -123,22 +124,23 @@ if __name__ == '__main__':
     # Remove missing sensor ids
     df.dropna(subset=['detid'], how='all', inplace=True)
 
-    num_processes = len(df)
+    # Python process limit is 512 modify this based on your machine
+    num_processes = min(len(df), 500)
+    chunk_size = math.ceil(len(df) / num_processes)
 
     # Create the networkx graph
     # 'drive', 'bike', 'walk'
     graph = create_graph("Munich, Bavaria, Germany", "bike")
 
-    # Create a process for each row in the df dataframe
+    # Create a process for each chunk of the df dataframe
     processes = []
-    for i, row in df.iterrows():
-        p = mp.Process(target=generate_adjacency_matrix, args=(df, df[i:i+1], i+1, graph))
+    for i, chunk in enumerate(np.array_split(df, num_processes)):
+        p = mp.Process(target=generate_adjacency_matrix, args=(df, chunk, i+1, graph))
         p.start()
         processes.append(p)
         
     for p in processes:
         p.join()
-
 
     # Combine the CSV files
     combine_csv_files(df)
