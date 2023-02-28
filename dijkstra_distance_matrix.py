@@ -17,19 +17,20 @@ import pandas as pd
 import osmnx as ox
 import networkx as nx
 
-# Using the cache accelerates processing for a large map
-ox.config(log_console=True, use_cache=True)
+# find shortest route based on the mode of travel and place
+def create_graph(place, mode):
 
-# find shortest route based on the mode of travel
+    # request the graph from the inputs
+    graph = ox.graph_from_place(place, network_type=mode)
 
-#place = 'Los Angeles, California, United States'
-place = 'Munich, Bavaria, Germany'
+    # get the largest strongly connected component
+    scc_generator = nx.strongly_connected_components(graph)
+    largest_scc = max(scc_generator, key=len)
 
-# 'drive', 'bike', 'walk'
-mode = 'bike'
+    # create a new graph containing only the largest strongly connected component
+    graph = graph.subgraph(largest_scc)
 
-# request the graph from the inputs once!!!
-graph = ox.graph_from_place(place, network_type = mode)
+    return graph
 
 ##### Interface to OSMNX
 def generate_adjacency_matrix(df):
@@ -48,15 +49,18 @@ def generate_adjacency_matrix(df):
             # coordinates belonging to the destination sensor
             end_latlng = (float(each_detector["LATITUDE"]), float(each_detector["LONGITUDE"]))
 
-            # find the nearest node to the current sensor
-            orig_node = ox.get_nearest_node(graph, start_latlng)
-            # find the nearest node to the destination sensor
-            dest_node = ox.get_nearest_node(graph, end_latlng)
+            # Try catch because sometimes a node isn't on the graph
+            try:
+                # find the nearest node to the current sensor
+                orig_node = ox.get_nearest_node(graph, start_latlng)
+                # find the nearest node to the destination sensor
+                dest_node = ox.get_nearest_node(graph, end_latlng)
 
-            #find the shortest path method dijkstra or bellman-ford
-            shortest_route_distance = nx.shortest_path_length(graph, orig_node,dest_node, weight="length", method="dijkstra")
+                #find the shortest path method dijkstra or bellman-ford
+                shortest_route_distance = nx.shortest_path_length(graph, orig_node,dest_node, weight="length", method="dijkstra")
+            except nx.NetworkXNoPath:
+                shortest_route_distance = 0
     
-
             matrix.append([str(detector["DETEKTOR_ID"]) + "," + str(each_detector["DETEKTOR_ID"]) + "," + str(float(shortest_route_distance))])
 
             #print(matrix)
@@ -89,5 +93,8 @@ df.dropna(subset=['LONGITUDE'], how='all', inplace=True)
 # Remove missing sensor ids
 df.dropna(subset=['DETEKTOR_ID'], how='all', inplace=True)
 
+# Create the networkx graph ONLY CREATE THIS ONCE TO REDUCE OSM REQUESTS!!!
+# 'drive', 'bike', 'walk'
+graph = create_graph("Munich, Bavaria, Germany", "drive")
 
 generate_adjacency_matrix(df)
