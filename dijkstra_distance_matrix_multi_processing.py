@@ -79,7 +79,7 @@ def generate_adjacency_matrix(df, df_row, row_index, graph):
     matrix = np.asarray(matrix)
 
     # Save the dijkstra rad sensors distance matrix
-    np.savetxt(OS_PATH + "/munich_adjacency_matrix_" + str(row_index) + ".csv", matrix, delimiter=",", fmt='%s')
+    np.savetxt(OS_PATH + "/output/munich_adjacency_matrix_" + str(row_index) + ".csv", matrix, delimiter=",", fmt='%s')
 
 def combine_csv_files(df):
 
@@ -91,7 +91,7 @@ def combine_csv_files(df):
 
     # Loop through all the CSV files created by generate_adjacency_matrix
     for i in range(1, len(df) + 1):
-        file_path = OS_PATH + "/munich_adjacency_matrix_" + str(i) + ".csv"
+        file_path = OS_PATH + "/output/munich_adjacency_matrix_" + str(i) + ".csv"
         if os.path.exists(file_path):
             # Read the CSV file into a dataframe and append it to the list
             df = pd.read_csv(file_path)
@@ -101,7 +101,7 @@ def combine_csv_files(df):
     result = pd.concat(dfs)
 
     # Save the concatenated dataframe as a CSV file
-    result.to_csv(OS_PATH + "/munich_adjacency_matrix.csv", index=False)
+    result.to_csv(OS_PATH + "/output/munich_adjacency_matrix.csv", index=False)
 
 
 def divide_dataframe(df, num_processes):
@@ -186,8 +186,8 @@ if __name__ == '__main__':
     combine_csv_files(df)
 
     # Transpose the combined adjacency matrix and save it as a CSV file
-    adjacency_matrix_file = os.path.join(OS_PATH, 'munich_adjacency_matrix.csv')
+    adjacency_matrix_file = os.path.join(OS_PATH, '/output/munich_adjacency_matrix.csv')
     transpose_adjacency_matrix(adjacency_matrix_file)
 
-    transposed_matrix_file = os.path.join(OS_PATH, 'munich_adjacency_matrix_transposed.csv')
+    transposed_matrix_file = os.path.join(OS_PATH, '/output/munich_adjacency_matrix_transposed.csv')
     normalize_matrix(transposed_matrix_file)
