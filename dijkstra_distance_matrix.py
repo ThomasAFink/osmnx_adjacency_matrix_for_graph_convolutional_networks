@@ -133,8 +133,8 @@ graph = create_graph("Munich, Bavaria, Germany", "bike")
 generate_adjacency_matrix(df)
 
 # Transpose the combined adjacency matrix and save it as a CSV file
-adjacency_matrix_file = os.path.join(OS_PATH, '/output/munich_adjacency_matrix.csv')
+adjacency_matrix_file = os.path.join(OS_PATH, '/output/bicycle_adjacency_matrix.csv')
 transpose_adjacency_matrix(adjacency_matrix_file)
 
-transposed_matrix_file = os.path.join(OS_PATH, '/output/munich_adjacency_matrix_transposed.csv')
+transposed_matrix_file = os.path.join(OS_PATH, '/output/bicycle_adjacency_matrix_transposed.csv')
 normalize_matrix(transposed_matrix_file)
