@@ -74,6 +74,39 @@ def generate_adjacency_matrix(df):
 
     # Save the dijkstra rad sensors distance matrix
     np.savetxt(OS_PATH + "output/bicycle_adjacency_matrix.csv", matrix, delimiter=",", fmt='%s')
+    
+def transpose_adjacency_matrix(adjacency_matrix_file):
+    # Read the adjacency matrix CSV file into a pandas DataFrame
+    df = pd.read_csv(adjacency_matrix_file)
+    
+    df['DISTANCE'] = df['DISTANCE'].astype(float)
+
+    # Transpose the matrix using pivot_table()
+    df_transposed = df.pivot_table(index='detid_Y', columns='detid_X', values='DISTANCE')
+
+    # Set the diagonal elements to zero
+    np.fill_diagonal(df_transposed.values, 0)
+
+    # Save the transposed matrix as a CSV file
+    df_transposed.to_csv(os.path.splitext(adjacency_matrix_file)[0] + '_transposed.csv', float_format='%.2f')
+
+
+def normalize_matrix(transposed_matrix_file):
+    # Read the transposed adjacency matrix CSV file into a pandas DataFrame
+
+    df = pd.read_csv(transposed_matrix_file, index_col=0)
+    df = df.apply(pd.to_numeric, errors='coerce')  # convert strings to numbers
+    
+
+    # Find the minimum and maximum values in the matrix
+    min_value = df.min()
+    max_value = df.max()
+
+    # Normalize the matrix values between 0 and 1
+    df_normalized = (df - min_value) / (max_value - min_value)
+
+    # Save the transposed matrix as a CSV file
+    df_normalized.to_csv(os.path.splitext(transposed_matrix_file)[0] + '_normalized.csv')
 
 
 # Data import path
@@ -98,3 +131,10 @@ df.dropna(subset=['DETEKTOR_ID'], how='all', inplace=True)
 graph = create_graph("Munich, Bavaria, Germany", "bike")
 
 generate_adjacency_matrix(df)
+
+# Transpose the combined adjacency matrix and save it as a CSV file
+adjacency_matrix_file = os.path.join(OS_PATH, '/output/munich_adjacency_matrix.csv')
+transpose_adjacency_matrix(adjacency_matrix_file)
+
+transposed_matrix_file = os.path.join(OS_PATH, '/output/munich_adjacency_matrix_transposed.csv')
+normalize_matrix(transposed_matrix_file)
