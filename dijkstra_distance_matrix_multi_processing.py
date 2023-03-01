@@ -15,7 +15,6 @@ from itertools import islice
 import pandas as pd
 import osmnx as ox
 import networkx as nx
-import math
 
 # Using the cache accelerates processing for a large map
 ox.config(log_console=True, use_cache=True, timeout=1000)
@@ -42,7 +41,7 @@ def generate_adjacency_matrix(df, df_row, row_index, graph):
     OS_PATH = os.path.dirname(os.path.realpath('__file__'))
 
     # Create the adjacency matrix
-    matrix = [["detid_X, detid_Y, DISTANCE"]]
+    matrix = [["detid_X,detid_Y,DISTANCE"]]
 
     # nested for loop to find the distances between all the sensors for every sensor
     i=0;
@@ -119,10 +118,43 @@ def divide_dataframe(df, num_processes):
     chunk_size = int(np.ceil(len(df) / num_processes))
     return [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
 
+def transpose_adjacency_matrix(adjacency_matrix_file):
+    # Read the adjacency matrix CSV file into a pandas DataFrame
+    df = pd.read_csv(adjacency_matrix_file)
+    
+    df['DISTANCE'] = df['DISTANCE'].astype(float)
+
+    # Transpose the matrix using pivot_table()
+    df_transposed = df.pivot_table(index='detid_Y', columns='detid_X', values='DISTANCE')
+
+    # Set the diagonal elements to zero
+    np.fill_diagonal(df_transposed.values, 0)
+
+    # Save the transposed matrix as a CSV file
+    df_transposed.to_csv(os.path.splitext(adjacency_matrix_file)[0] + '_transposed.csv', float_format='%.2f')
+
+
+def normalize_matrix(transposed_matrix_file):
+    # Read the transposed adjacency matrix CSV file into a pandas DataFrame
+
+    df = pd.read_csv(transposed_matrix_file, index_col=0)
+    df = df.apply(pd.to_numeric, errors='coerce')  # convert strings to numbers
+    
+
+    # Find the minimum and maximum values in the matrix
+    min_value = df.min()
+    max_value = df.max()
+
+    # Normalize the matrix values between 0 and 1
+    df_normalized = (df - min_value) / (max_value - min_value)
+
+    # Save the transposed matrix as a CSV file
+    df_normalized.to_csv(os.path.splitext(transposed_matrix_file)[0] + '_normalized.csv')
+
 if __name__ == '__main__':
     # Data import path
     OS_PATH = os.path.dirname(os.path.realpath('__file__'))
-    SENSORS_CSV = os.path.join(OS_PATH, 'augsburg_sensors.csv')
+    SENSORS_CSV = os.path.join(OS_PATH, 'munich_sensors.csv')
 
     # Data Import Path
     df = pd.read_csv(SENSORS_CSV)
@@ -152,3 +184,10 @@ if __name__ == '__main__':
 
     # Combine the CSV files
     combine_csv_files(df)
+
+    # Transpose the combined adjacency matrix and save it as a CSV file
+    adjacency_matrix_file = os.path.join(OS_PATH, 'munich_adjacency_matrix.csv')
+    transpose_adjacency_matrix(adjacency_matrix_file)
+
+    transposed_matrix_file = os.path.join(OS_PATH, 'munich_adjacency_matrix_transposed.csv')
+    normalize_matrix(transposed_matrix_file)
